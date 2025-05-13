@@ -15,7 +15,6 @@ package ulid
 
 import (
 	"bufio"
-	"bytes"
 	"database/sql/driver"
 	"encoding/binary"
 	"errors"
@@ -25,6 +24,7 @@ import (
 	"math/rand"
 	"sync"
 	"time"
+	"unsafe"
 )
 
 /*
@@ -493,7 +493,23 @@ func (id *ULID) SetEntropy(e []byte) error {
 // Compare returns an integer comparing id and other lexicographically.
 // The result will be 0 if id==other, -1 if id < other, and +1 if id > other.
 func (id ULID) Compare(other ULID) int {
-	return bytes.Compare(id[:], other[:])
+	ih := *(*uint64)(unsafe.Pointer(&id[0]))
+	il := *(*uint64)(unsafe.Pointer(&id[8]))
+	oh := *(*uint64)(unsafe.Pointer(&other[0]))
+	ol := *(*uint64)(unsafe.Pointer(&other[8]))
+	if ih > oh {
+		return 1
+	}
+	if ih < oh {
+		return -1
+	}
+	if il > ol {
+		return 1
+	}
+	if il < ol {
+		return -1
+	}
+	return 0
 }
 
 // Scan implements the sql.Scanner interface. It supports scanning
