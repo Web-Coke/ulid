@@ -892,7 +892,20 @@ func BenchmarkSetEntropy(b *testing.B) {
 	}
 }
 
-func BenchmarkCompare(b *testing.B) {
+func OldCompare(id, other ulid.ULID) int {
+	return bytes.Compare(id[:], other[:])
+}
+
+func BenchmarkOldCompare(b *testing.B) {
+	id, other := ulid.MustNew(12345, nil), ulid.MustNew(54321, nil)
+	b.SetBytes(int64(len(id) * 2))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = OldCompare(id, other)
+	}
+}
+
+func BenchmarkNewCompare(b *testing.B) {
 	id, other := ulid.MustNew(12345, nil), ulid.MustNew(54321, nil)
 	b.SetBytes(int64(len(id) * 2))
 	b.ResetTimer()
