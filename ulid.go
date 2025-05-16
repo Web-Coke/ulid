@@ -489,28 +489,6 @@ func (id *ULID) SetEntropy(e []byte) error {
 	return nil
 }
 
-// Compare returns an integer comparing id and other lexicographically.
-// The result will be 0 if id==other, -1 if id < other, and +1 if id > other.
-func (id ULID) Compare(other ULID) int {
-	ih := binary.NativeEndian.Uint64(id[0:8])
-	il := binary.NativeEndian.Uint64(id[8:16])
-	oh := binary.NativeEndian.Uint64(other[0:8])
-	ol := binary.NativeEndian.Uint64(other[8:16])
-	if ih > oh {
-		return 1
-	}
-	if ih < oh {
-		return -1
-	}
-	if il > ol {
-		return 1
-	}
-	if il < ol {
-		return -1
-	}
-	return 0
-}
-
 // Scan implements the sql.Scanner interface. It supports scanning
 // a string or byte slice.
 func (id *ULID) Scan(src interface{}) error {
